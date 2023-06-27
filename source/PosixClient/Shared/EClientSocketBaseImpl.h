@@ -2773,7 +2773,7 @@ int EClientSocketBase::processConnectAck(const char*& beginPtr, const char* endP
 	}
 #endif
 
-	catch(  std::exception e) {
+	catch(  std::exception &e) {
 		m_pEWrapper->error( NO_VALID_ID, SOCKET_EXCEPTION.code(),
 			SOCKET_EXCEPTION.msg() + errMsg( e) );
 	}
@@ -2827,6 +2827,7 @@ int EClientSocketBase::processMsg(const char*& beginPtr, const char* endPtr)
 							break;
 						case LAST:
 							sizeTickType = LAST_SIZE;
+						default:
 						break;
 					}
 					if( sizeTickType != NOT_SET)
@@ -4148,7 +4149,7 @@ int EClientSocketBase::processMsg(const char*& beginPtr, const char* endPtr)
 	}
 #endif
 
-	catch( std::exception e) {
+	catch( std::exception &e) {
 		m_pEWrapper->error( NO_VALID_ID, SOCKET_EXCEPTION.code(),
 			SOCKET_EXCEPTION.msg() + errMsg(e));
 	}

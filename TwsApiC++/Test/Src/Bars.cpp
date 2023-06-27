@@ -154,6 +154,7 @@ int main( void )
 
 	delete EC;
 
-	{ PrintProcessId,printf( "Press return to end\n" ); char s[10]; gets(s); }
+        { PrintProcessId,printf( "Press return to end\n" ); char s[10]; fgets(s, 10, stdin); }
+
 	return 0;
 }
