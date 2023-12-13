@@ -337,6 +337,9 @@ struct EClientL0Impl: public EPosixClientSocket
 				// errno == EACCES // insufficient resources (such as memory)
 			{
 				m_EWrapperL0->error( errno, COULD_NOT_START_THREAD.code(), COULD_NOT_START_THREAD.msg());
+				eDisconnect();
+				return false;
+			}
 #else
 			pthread_t thr;
 			int err = pthread_create(&thr, 0, (void *(*)(void *)) ThreadMain, this);
@@ -346,10 +349,10 @@ struct EClientL0Impl: public EPosixClientSocket
 				// err == EPERM  // No permission to set the scheduling policy
 			{	// if err
 				m_EWrapperL0->error( err, COULD_NOT_START_THREAD.code(), COULD_NOT_START_THREAD.msg());
-#endif
 				eDisconnect();
 				return false;
 			}
+#endif
 		}
 
 		return true;

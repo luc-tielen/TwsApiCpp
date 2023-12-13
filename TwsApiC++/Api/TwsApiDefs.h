@@ -693,6 +693,8 @@ namespace TwsApi
 	ENUMValues( MarketDataType )
 		ENUM_V( Realtime  , 1)
 		ENUM_N( Frozen    )
+		ENUM_N( Delayed    )
+		ENUM_N( DelayedFrozen    )
 	ENUMFunctions( MarketDataType )
 
 
