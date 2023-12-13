@@ -15,7 +15,7 @@ Provide a portable and a platform/vendor independant C++ API based on the POSIX 
 
 Starting from version 9.62, IB supports a C++ API with POSIX socket implementation.  This is a platform and vendor independant implementation.  The only drawback of the POSIX API is its complexity and its non-compatibility with versions previous to 9.62.  Indeed, the new API is the combination of the classes EClient/EWrapper, the class EPosixClientSocket AND the POSIX sockets API. Reading the example code in directory TestPosixSocketClient makes it clear: you will find a call to the select() method, the use of the low level macro's FD_ZERO, FD_SET, FD_CLR and FD_ISSET and tests on the file descriptor whether it is still valid or not, plus calls to onReceive(), onSend(), and onError(), introduced in new class EPosixClientSocket in the POSIX API. This all makes the use of the TWS C++ API far more complicated then it was before and not just plug & play with previous versions.
 
-This TwsApiC++ ensures all that is hidden and restores the backwards 'plug & play' compatibility, except for the xstring wich is replaced by newly introduced IBString by IB in version 9.62.
+This TwsApiC++ ensures all that is hidden and restores the backwards 'plug & play' compatibility, except for the xstring which is replaced by newly introduced IBString by IB in version 9.62.
 
 
 9.71: Differences with TwsApiC++ versions 9.67_4
@@ -194,13 +194,13 @@ By default, the MS behaviour of class CAsyncSocket is simulated by executing che
 
 From version 9.63 on, the choice whether or not to start a thread is a property of EWrapperL0 set durings its creation: EWrapper EW( false );  When set to false, no thread is started and the user program must call checkMessages() periodically in order to handle the incoming events on the socket.  See the main.cpp for an example.
 
-It is garanteed that connectionClosed() is called and the automatic thread, if any, stops running (if any) whenever the connection with TWS gets broken for any reason.  There is no need to call eDisconnect() when receiving the connectionClosed() event without a call to eDisconnect().  Because sockets have no method to detect that the other end died without closing the socket,  about every second, a '\0' byte is send to TWS as a check.
+It is guaranteed that connectionClosed() is called and the automatic thread, if any, stops running (if any) whenever the connection with TWS gets broken for any reason.  There is no need to call eDisconnect() when receiving the connectionClosed() event without a call to eDisconnect().  Because sockets have no method to detect that the other end died without closing the socket,  about every second, a '\0' byte is send to TWS as a check.
 
 For convenience, a class EWrapperL0 derived from EWrapper provides an empty body for each method and adds a few:
 * connectionOpened() is called when the connection with TWS is established successfully (symmetry with connectionClosed());
 * IsEndOfHistoricalData() can be used to check for the end in the historicalData() stream.
 Class EClient is extended into EClientL0 and provides some extra methods, i.e. clientVersion() and IsConnected().
-* OnCatch() is called whenever an exception is raised in the users EWrapper code.  The tickerId/orderId/reqId and the method name in wich the exception was raised are available.
+* OnCatch() is called whenever an exception is raised in the users EWrapper code.  The tickerId/orderId/reqId and the method name in which the exception was raised are available.
 
 The result is very lightweight and fast. The library in release mode is < 1MB and the small test program compiles into less then 300KB and needs less then 2MB of memory to run.
 
