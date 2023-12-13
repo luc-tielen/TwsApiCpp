@@ -97,8 +97,8 @@ enum TickType {                 BID_SIZE,
                                 AVERAGE_OPTION_VOLUME,
                                 DELAYED_LAST_TIMESTAMP,
                                 SHORTABLE_SHARES,
-                                _NO_OP_,        /* To maintain sequence in ib_insync:tickerTypes.py */
-                                _NO_OP_,        /* To maintain sequence in ib_insync:tickerTypes.py */
+                                _NO_OP1_,        /* To maintain sequence in ib_insync:tickerTypes.py */
+                                _NO_OP2_,        /* To maintain sequence in ib_insync:tickerTypes.py */
                                 ETF_NAV_CLOSE,
                                 ETF_NAV_PRIOR_CLOSE,
                                 ETF_NAV_BID,
