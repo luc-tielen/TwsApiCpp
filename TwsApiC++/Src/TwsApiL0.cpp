@@ -267,10 +267,15 @@ public:
 	virtual void displayGroupUpdated   ( int reqId, const IBString& contractInfo)
 	{ EW_TRYCATCH(displayGroupUpdated  , reqId, displayGroupUpdated( reqId, contractInfo); ) }
 
+	virtual void securityDefinitionOptionParameter(int reqId, const IBString& exchange, int underlying_con_id, const IBString& trading_class, const IBString& multiplier, const std::vector<IBString>& expirations, const std::vector<double>& strikes)
+	{ EW_TRYCATCH(securityDefinitionOptionParameter, reqId, securityDefinitionOptionParameter(reqId, exchange, underlying_con_id, trading_class, multiplier, expirations, strikes); ) }
+
+	virtual void securityDefinitionOptionParameterEnd(int reqId)
+	{ EW_TRYCATCH(securityDefinitionOptionParameterEnd, reqId, securityDefinitionOptionParameterEnd(reqId); ) }
+
 	//---- Extra Methods -----------------------------------------------------
 	virtual void connectionOpened( void )
 	{EW_TRYCATCH(connectionOpened      , NO_VALID_ID, connectionOpened( ); ) }
-
 };
 #undef EW_TRYCATCH
 
@@ -791,6 +796,11 @@ struct EClientL0Interface: public EClientL0, CriticalSection
     { ENTER_CLIENT( unsubscribeFromGroupEvents  , reqId )
                  EC.unsubscribeFromGroupEvents  ( reqId);
       LEAVE_CLIENT( unsubscribeFromGroupEvents  ) }
+
+   void reqSecDefOptParams(int reqId, const IBString& underlying_symbol, const IBString& fut_fop_exchange, const IBString& underlying_sec_type, int underlying_con_id)
+    { ENTER_CLIENT( reqSecDefOptParams  , reqId )
+                 EC.reqSecDefOptParams  (reqId, underlying_symbol, fut_fop_exchange, underlying_sec_type, underlying_con_id);
+      LEAVE_CLIENT( reqSecDefOptParams  ) }
 
 	//---- Extra Methods -----------------------------------------------------
     virtual EWrapper*	GetEWrapper			( void ) { return EC.GetEWrapper		(); }

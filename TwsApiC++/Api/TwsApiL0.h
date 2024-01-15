@@ -7,12 +7,12 @@ and before.
 
 In the default mode, a seperate thread reads the incoming data from TWS and
 calls the EWrapper events automatically. Calling checkMessages() is not
-needed and doing so would make no difference. 
+needed and doing so would make no difference.
 
 Changing this default mode is possible, see constructor of EWrapperL0, and
 in that case, checkMessages() MUST be called periodically.
 
-EWrapperL0 extends EWrapper with a connectionOpened() event for reasons of 
+EWrapperL0 extends EWrapper with a connectionOpened() event for reasons of
 symmetry with connectionClosed().  It is called just before eConnect() returns
 if the connection was established successfuly.
 
@@ -66,6 +66,8 @@ struct IBString: public _IBString
 
 #include "TwsSocketClientErrors.h"
 
+#include <vector>
+
 // An extra error to indicate a thread couldn't start during eConnect when asked for
 static const CodeMsgPair COULD_NOT_START_THREAD( 700, "Couldn't start thread to read incomming messages." );
 
@@ -81,7 +83,7 @@ public:
 
 	// A static member that returns the api version
 	static  const char* apiVersion( void ) { return (const char*)"9.71"; }
-	
+
 	// See all members declared in EClient
 
 	// set the last parameter "const TagValueListSPtr&" to an empty as it is only for IB internal use!
@@ -90,6 +92,8 @@ public:
 	virtual void reqHistoricalData( TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString &barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr& chartOptions = TagValueListSPtr()) = 0;
 	virtual void reqRealTimeBars( TickerId id, const Contract &contract, int barSize, const IBString &whatToShow, bool useRTH, const TagValueListSPtr& realTimeBarsOptions = TagValueListSPtr()) = 0;
 	virtual void reqScannerSubscription( int tickerId, const ScannerSubscription &subscription, const TagValueListSPtr& scannerSubscriptionOptions = TagValueListSPtr()) = 0;
+
+	virtual void reqSecDefOptParams(int reqId, const IBString& underlying_symbol, const IBString& fut_fop_exchange, const IBString& underlying_sec_type, int underlying_con_id) = 0;
 
 	//---- Extra Methods -----------------------------------------------------
 
@@ -165,6 +169,10 @@ public:
 	virtual void verifyCompleted       ( bool isSuccessful, const IBString& errorText) { EWRAPPERL0_DEFAULT( NO_VALID_ID, "verifyCompleted" ) }
 	virtual void displayGroupList      (  int reqId, const IBString& groups) { EWRAPPERL0_DEFAULT( reqId, "displayGroupList" ) }
 	virtual void displayGroupUpdated   ( int reqId, const IBString& contractInfo) { EWRAPPERL0_DEFAULT( reqId, "displayGroupUpdated" ) }
+
+	virtual void securityDefinitionOptionParameter(int reqId, const IBString& exchange, int underlying_con_id, const IBString& trading_class, const IBString& multiplier, const std::vector<IBString>& expirations, const std::vector<double>& strikes) { EWRAPPERL0_DEFAULT(reqId, "securityDefinitionOptionParameter") }
+	virtual void securityDefinitionOptionParameterEnd(int reqId) { EWRAPPERL0_DEFAULT(reqId, "securityDefinitionOptionParameterEnd") }
+
 	//---- Extra Methods -----------------------------------------------------
 
 	// To keep symmetry with other requests that have an End method:

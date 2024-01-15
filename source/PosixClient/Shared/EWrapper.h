@@ -6,6 +6,7 @@
 
 #include "CommonDefs.h"
 #include "IBString.h"
+#include <vector>
 
 enum TickType {                 BID_SIZE,
                                 BID,
@@ -188,6 +189,9 @@ public:
    virtual void verifyCompleted( bool isSuccessful, const IBString& errorText) = 0;
    virtual void displayGroupList( int reqId, const IBString& groups) = 0;
    virtual void displayGroupUpdated( int reqId, const IBString& contractInfo) = 0;
+
+   virtual void securityDefinitionOptionParameter(int reqId, const IBString& exchange, int underlying_con_id, const IBString& trading_class, const IBString& multiplier, const std::vector<IBString>& expirations, const std::vector<double>& strikes) = 0;
+   virtual void securityDefinitionOptionParameterEnd(int reqId) = 0;
 };
 
 

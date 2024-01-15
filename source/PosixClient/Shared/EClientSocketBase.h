@@ -107,6 +107,8 @@ public:
 	void updateDisplayGroup( int reqId, const IBString& contractInfo);
 	void unsubscribeFromGroupEvents( int reqId);
 
+	void reqSecDefOptParams(int reqId, const IBString& underlying_symbol, const IBString& fut_fop_exchange, const IBString& underlying_sec_type, int underlying_con_id);
+
 private:
 
 	virtual int send(const char* buf, size_t sz) = 0;

@@ -74,6 +74,8 @@ public:
    virtual void updateDisplayGroup( int reqId, const IBString& contractInfo) = 0;
    virtual void unsubscribeFromGroupEvents( int reqId) = 0;
 
+   virtual void reqSecDefOptParams(int reqId, const IBString& underlying_symbol, const IBString& fut_fop_exchange, const IBString& underlying_sec_type, int underlying_con_id) = 0;
+
 private:
 };
 

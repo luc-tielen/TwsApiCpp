@@ -94,7 +94,7 @@
 // 51 = can receive smartComboRoutingParams in openOrder
 // 52 = can receive deltaNeutralConId, deltaNeutralSettlingFirm, deltaNeutralClearingAccount and deltaNeutralClearingIntent in openOrder
 // 53 = can receive orderRef in execution
-// 54 = can receive scale order fields (PriceAdjustValue, PriceAdjustInterval, ProfitOffset, AutoReset, 
+// 54 = can receive scale order fields (PriceAdjustValue, PriceAdjustInterval, ProfitOffset, AutoReset,
 //      InitPosition, InitFillQty and RandomPercent) in openOrder
 // 55 = can receive orderComboLegs (price) in openOrder
 // 56 = can receive trailingPercent in openOrder
@@ -102,7 +102,7 @@
 // 58 = can receive CUSIP/ISIN/etc. in contractDescription/bondContractDescription
 // 59 = can receive evRule, evMultiplier in contractDescription/bondContractDescription/executionDetails
 //      can receive multiplier in executionDetails
-// 60 = can receive deltaNeutralOpenClose, deltaNeutralShortSale, deltaNeutralShortSaleSlot 
+// 60 = can receive deltaNeutralOpenClose, deltaNeutralShortSale, deltaNeutralShortSaleSlot
 //      and deltaNeutralDesignatedLocation in openOrder
 //      can receive position, positionEnd, accountSummary and accountSummaryEnd
 // 61 = can receive multiplier in openOrder
@@ -236,6 +236,7 @@ const int MIN_SERVER_VER_TRADING_CLASS          = 68;
 const int MIN_SERVER_VER_SCALE_TABLE            = 69;
 const int MIN_SERVER_VER_LINKING                = 70;
 const int MIN_SERVER_VER_ALGO_ID                = 71;
+const int MIN_SERVER_VER_SEC_DEF_OPT_PARAMS_REQ = 104;
 
 // incoming msg id's
 const int TICK_PRICE                = 1;
@@ -1170,7 +1171,31 @@ void EClientSocketBase::cancelScannerSubscription(int tickerId)
 	bufferedSend( msg.str());
 }
 
-void EClientSocketBase::reqFundamentalData(TickerId reqId, const Contract& contract, 
+void EClientSocketBase::reqSecDefOptParams(int reqId, const IBString& underlying_symbol, const IBString& fut_fop_exchange, const IBString& underlying_sec_type, int underlying_con_id) {
+	// not connected?
+	if( !m_connected) {
+		m_pEWrapper->error( reqId, NOT_CONNECTED.code(), NOT_CONNECTED.msg());
+		return;
+	}
+
+    if( m_serverVersion < MIN_SERVER_VER_SEC_DEF_OPT_PARAMS_REQ) {
+        m_pEWrapper->error(NO_VALID_ID, UPDATE_TWS.code(), UPDATE_TWS.msg() + "  It does not support security definiton option requests.");
+        return;
+    }
+
+	std::ostringstream msg;
+
+	ENCODE_FIELD(REQ_SEC_DEF_OPT_PARAMS);
+	ENCODE_FIELD(reqId);
+	ENCODE_FIELD(underlying_symbol);
+	ENCODE_FIELD(fut_fop_exchange);
+	ENCODE_FIELD(underlying_sec_type);
+	ENCODE_FIELD(underlying_con_id);
+
+	bufferedSend(msg.str());
+}
+
+void EClientSocketBase::reqFundamentalData(TickerId reqId, const Contract& contract,
 										   const IBString& reportType)
 {
 	// not connected?
@@ -1622,7 +1647,7 @@ void EClientSocketBase::placeOrder( OrderId id, const Contract &contract, const 
 	}
 
 	if (m_serverVersion < MIN_SERVER_VER_DELTA_NEUTRAL_CONID) {
-		if (order.deltaNeutralConId > 0 
+		if (order.deltaNeutralConId > 0
 				|| !IsEmpty(order.deltaNeutralSettlingFirm)
 				|| !IsEmpty(order.deltaNeutralClearingAccount)
 				|| !IsEmpty(order.deltaNeutralClearingIntent)
@@ -1636,10 +1661,10 @@ void EClientSocketBase::placeOrder( OrderId id, const Contract &contract, const 
 	if (m_serverVersion < MIN_SERVER_VER_DELTA_NEUTRAL_OPEN_CLOSE) {
 		if (!IsEmpty(order.deltaNeutralOpenClose)
 				|| order.deltaNeutralShortSale
-				|| order.deltaNeutralShortSaleSlot > 0 
+				|| order.deltaNeutralShortSaleSlot > 0
 				|| !IsEmpty(order.deltaNeutralDesignatedLocation)
 				) {
-			m_pEWrapper->error( id, UPDATE_TWS.code(), UPDATE_TWS.msg() + 
+			m_pEWrapper->error( id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
 				"  It does not support deltaNeutral parameters: OpenClose, ShortSale, ShortSaleSlot, DesignatedLocation.");
 			return;
 		}
@@ -1647,12 +1672,12 @@ void EClientSocketBase::placeOrder( OrderId id, const Contract &contract, const 
 
 	if (m_serverVersion < MIN_SERVER_VER_SCALE_ORDERS3) {
 		if (order.scalePriceIncrement > 0 && order.scalePriceIncrement != UNSET_DOUBLE) {
-			if (order.scalePriceAdjustValue != UNSET_DOUBLE 
-				|| order.scalePriceAdjustInterval != UNSET_INTEGER 
-				|| order.scaleProfitOffset != UNSET_DOUBLE 
-				|| order.scaleAutoReset 
-				|| order.scaleInitPosition != UNSET_INTEGER 
-				|| order.scaleInitFillQty != UNSET_INTEGER 
+			if (order.scalePriceAdjustValue != UNSET_DOUBLE
+				|| order.scalePriceAdjustInterval != UNSET_INTEGER
+				|| order.scaleProfitOffset != UNSET_DOUBLE
+				|| order.scaleAutoReset
+				|| order.scaleInitPosition != UNSET_INTEGER
+				|| order.scaleInitFillQty != UNSET_INTEGER
 				|| order.scaleRandomPercent) {
 				m_pEWrapper->error( id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
 						"  It does not support Scale order parameters: PriceAdjustValue, PriceAdjustInterval, " +
@@ -1800,7 +1825,7 @@ void EClientSocketBase::placeOrder( OrderId id, const Contract &contract, const 
 
 				ENCODE_FIELD( comboLeg->shortSaleSlot); // srv v35 and above
 				ENCODE_FIELD( comboLeg->designatedLocation); // srv v35 and above
-				if (m_serverVersion >= MIN_SERVER_VER_SSHORTX_OLD) { 
+				if (m_serverVersion >= MIN_SERVER_VER_SSHORTX_OLD) {
 					ENCODE_FIELD( comboLeg->exemptCode);
 				}
 			}
@@ -1820,7 +1845,7 @@ void EClientSocketBase::placeOrder( OrderId id, const Contract &contract, const 
 				ENCODE_FIELD_MAX( orderComboLeg->price);
 			}
 		}
-	}	
+	}
 
 	if( m_serverVersion >= MIN_SERVER_VER_SMART_COMBO_ROUTING_PARAMS && Compare(contract.secType, "BAG") == 0) {
 		const TagValueList* const smartComboRoutingParams = order.smartComboRoutingParams.get();
@@ -1864,7 +1889,7 @@ void EClientSocketBase::placeOrder( OrderId id, const Contract &contract, const 
 	// institutional short saleslot data (srv v18 and above)
 	ENCODE_FIELD( order.shortSaleSlot);      // 0 for retail, 1 or 2 for institutions
 	ENCODE_FIELD( order.designatedLocation); // populate only when shortSaleSlot = 2.
-	if (m_serverVersion >= MIN_SERVER_VER_SSHORTX_OLD) { 
+	if (m_serverVersion >= MIN_SERVER_VER_SSHORTX_OLD) {
 		ENCODE_FIELD( order.exemptCode);
 	}
 
@@ -1952,7 +1977,7 @@ void EClientSocketBase::placeOrder( OrderId id, const Contract &contract, const 
 
 	ENCODE_FIELD_MAX( order.scalePriceIncrement);
 
-	if( m_serverVersion >= MIN_SERVER_VER_SCALE_ORDERS3 
+	if( m_serverVersion >= MIN_SERVER_VER_SCALE_ORDERS3
 		&& order.scalePriceIncrement > 0.0 && order.scalePriceIncrement != UNSET_DOUBLE) {
 		ENCODE_FIELD_MAX( order.scalePriceAdjustValue);
 		ENCODE_FIELD_MAX( order.scalePriceAdjustInterval);
@@ -3138,13 +3163,13 @@ int EClientSocketBase::processMsg(const char*& beginPtr, const char* endPtr)
 				DECODE_FIELD( order.action);
 				DECODE_FIELD( order.totalQuantity);
 				DECODE_FIELD( order.orderType);
-				if (version < 29) { 
+				if (version < 29) {
 					DECODE_FIELD( order.lmtPrice);
 				}
 				else {
 					DECODE_FIELD_MAX( order.lmtPrice);
 				}
-				if (version < 30) { 
+				if (version < 30) {
 					DECODE_FIELD( order.auxPrice);
 				}
 				else {
@@ -4200,6 +4225,60 @@ int EClientSocketBase::processMsg(const char*& beginPtr, const char* endPtr)
 				DECODE_FIELD( contractInfo);
 
 				m_pEWrapper->displayGroupUpdated( reqId, contractInfo);
+				break;
+			}
+
+			case SECURITY_DEF_OPTS_PARAMS:
+			{
+				int version;
+				int reqId;
+				IBString exchange;
+				int underlying_con_id;
+				IBString trading_class;
+				IBString multiplier;
+				int expirations_size;
+				int strikes_size;
+				std::vector<IBString> expirations;
+				std::vector<double> strikes;
+
+				DECODE_FIELD(version);
+				DECODE_FIELD(reqId);
+				DECODE_FIELD(exchange);
+				DECODE_FIELD(underlying_con_id);
+				DECODE_FIELD(trading_class);
+				DECODE_FIELD(multiplier);
+				DECODE_FIELD(expirations_size);
+
+				expirations.reserve(expirations_size);
+				for (auto i = 0; i < expirations_size; ++i) {
+					IBString expiration;
+					DECODE_FIELD(expiration);
+
+					expirations.push_back(expiration);
+				}
+
+				DECODE_FIELD(strikes_size);
+
+				strikes.reserve(strikes_size);
+				for (auto i = 0; i < strikes_size; ++i) {
+					double strike;
+					DECODE_FIELD(strike);
+
+					strikes.push_back(strike);
+				}
+
+				m_pEWrapper->securityDefinitionOptionParameter(reqId, exchange, underlying_con_id, trading_class, multiplier, expirations, strikes);
+				break;
+			}
+
+			case SEC_DEF_OPTS_PARAMS_END:
+			{
+				int version;
+				int reqId;
+				DECODE_FIELD( version);
+				DECODE_FIELD( reqId);
+
+				m_pEWrapper->securityDefinitionOptionParameterEnd(reqId);
 				break;
 			}
 
